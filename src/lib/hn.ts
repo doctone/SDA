@@ -1,6 +1,6 @@
 import { z } from "zod";
+import { readEnv } from "./env";
 
-const HN_API = "https://hacker-news.firebaseio.com/v0";
 export const HIRING_ACCOUNT = "whoishiring";
 const HIRING_TITLE = /^Ask HN: Who is hiring\?/i;
 
@@ -21,7 +21,7 @@ export const hnItemSchema = z.object({
 export type HnItem = z.infer<typeof hnItemSchema>;
 
 export async function fetchHnItem(id: number): Promise<HnItem | null> {
-  const response = await fetch(`${HN_API}/item/${id}.json`);
+  const response = await fetch(`${readEnv().HN_API_URL}/item/${id}.json`);
   if (!response.ok) {
     throw new Error(`HN API returned ${response.status} for item ${id}`);
   }
