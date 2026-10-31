@@ -1,0 +1,13 @@
+services:
+  postgres:
+    ports: !reset []
+  temporal:
+    ports: !reset []
+  temporal-ui:
+    ports: !override
+      - "8333:8080"
+    environment:
+      TEMPORAL_CORS_ORIGINS: http://localhost:3100
+  web:
+    ports: !override
+      - "3100:3000"
