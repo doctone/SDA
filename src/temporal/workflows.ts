@@ -1,4 +1,4 @@
-import { ApplicationFailure, proxyActivities, workflowInfo } from "@temporalio/workflow";
+import { ActivityFailure, proxyActivities, workflowInfo } from "@temporalio/workflow";
 import type * as activities from "./activities";
 import { COMMENT_BATCH_SIZE, type IngestHiringThreadInput } from "./shared";
 
@@ -23,8 +23,14 @@ export async function ingestHiringThread({ threadId }: IngestHiringThreadInput):
     }
     await recordRunFinished({ ...runKey, processed });
   } catch (error) {
-    const message = error instanceof ApplicationFailure ? error.message : String(error);
-    await recordRunFailed({ ...runKey, error: message });
+    await recordRunFailed({ ...runKey, error: describeFailure(error) });
     throw error;
   }
+}
+
+function describeFailure(error: unknown): string {
+  if (error instanceof ActivityFailure && error.cause) {
+    return error.cause.message;
+  }
+  return error instanceof Error ? error.message : String(error);
 }

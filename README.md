@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SDA: skills demand from HN hiring threads
 
-## Getting Started
+Shows which skills employers request in a Hacker News "Who is hiring?" thread,
+with the original excerpt and HN link behind every count. Results describe
+demand within HN hiring posts only, not the wider job market.
 
-First, run the development server:
+## Run it
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Requires Docker. Everything runs in containers.
+
+```sh
+docker compose up -d --build
+pnpm ingest 49922569
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`pnpm ingest` runs inside the worker container, so host Node is only needed
+for that shortcut and for tests. Without pnpm:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+docker compose exec worker pnpm exec tsx scripts/start-ingestion.ts 49922569
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Service | URL |
+| --- | --- |
+| Web app | http://localhost:3000 |
+| Temporal UI | http://localhost:8233 |
+| Postgres | `postgres://skills:skills@localhost:5433/skills` |
 
-## Learn More
+The web and worker containers mount the source, so edits reload without a
+rebuild. Rebuild after changing dependencies. `docker compose down -v` deletes
+all data, including Temporal history.
 
-To learn more about Next.js, take a look at the following resources:
+## Services
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `postgres` holds the app database `skills` and Temporal's `temporal` and
+  `temporal_visibility` databases.
+- `temporal-schema` and `temporal-namespace` are one-shot setup jobs. Both
+  are safe to rerun against existing data.
+- `temporal` and `temporal-ui` run the Temporal server and its web UI.
+- `migrate` applies `db/schema.sql`, then `worker` and `web` start.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tests
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```sh
+pnpm install
+pnpm test
+```

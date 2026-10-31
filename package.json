@@ -9,9 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts",
-    "worker": "tsx --env-file=.env.local src/temporal/worker.ts",
-    "ingest": "tsx --env-file=.env.local scripts/start-ingestion.ts"
+    "ingest": "docker compose exec worker pnpm exec tsx scripts/start-ingestion.ts"
   },
   "dependencies": {
     "@temporalio/activity": "^1.25.0",
