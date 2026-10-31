@@ -7,7 +7,10 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   checks:
@@ -24,6 +27,7 @@ jobs:
       - run: pnpm exec next typegen
       - run: pnpm typecheck
       - run: pnpm lint
+      - run: python3 -m unittest discover -s scripts -p 'test_*.py'
 
   test:
     name: Tests
@@ -53,3 +57,42 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test
+
+  deploy:
+    name: Deploy production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [checks, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: production
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_SERVICE_ID: srv-dbj0p3cs728c738h9k30
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check deployment configuration
+        shell: bash
+        run: |
+          for name in RENDER_API_KEY VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing production configuration: $name"
+              exit 1
+            fi
+          done
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build production web app before changing production
+        run: |
+          npx --yes vercel@65.9.0 pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx --yes vercel@65.9.0 build --prod --token="$VERCEL_TOKEN"
+      - name: Migrate database and deploy Temporal worker
+        run: python3 scripts/deploy_render.py
+      - name: Deploy production web app
+        run: npx --yes vercel@65.9.0 deploy --prebuilt --prod --token="$VERCEL_TOKEN"

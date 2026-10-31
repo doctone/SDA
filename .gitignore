@@ -44,3 +44,6 @@ next-env.d.ts
 
 # verification evidence
 /.verify-evidence/
+
+# Python deployment scripts
+__pycache__/

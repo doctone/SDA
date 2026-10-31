@@ -1,10 +1,10 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { readFileSync } from "node:fs";
 import { createServer } from "node:net";
 import path from "node:path";
 import { TestWorkflowEnvironment } from "@temporalio/testing";
 import postgres from "postgres";
 import type { TestProject } from "vitest/node";
+import { applyMigrations } from "../../scripts/db-migrations";
 import { startFakeHn } from "./fake-hn";
 
 declare module "vitest" {
@@ -42,7 +42,7 @@ async function createTestDatabase(): Promise<string> {
   const databaseUrl = new URL(adminUrl);
   databaseUrl.pathname = `/${TEST_DATABASE}`;
   const sql = postgres(databaseUrl.toString(), { max: 1, onnotice: () => {} });
-  await sql.unsafe(readFileSync(path.join(ROOT, "db", "schema.sql"), "utf8"));
+  await applyMigrations(sql);
   await sql.end();
   return databaseUrl.toString();
 }
