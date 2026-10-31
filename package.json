@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:worker": "tsc -p tsconfig.worker.json && node scripts/build-workflows.mjs",
+    "start:worker": "node build/worker/src/temporal/worker.js",
+    "db:migrate": "node build/worker/scripts/migrate.js",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

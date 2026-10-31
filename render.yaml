@@ -1,0 +1,22 @@
+services:
+  - type: worker
+    name: sda-ingestion
+    runtime: docker
+    dockerfilePath: ./Dockerfile.worker
+    dockerContext: .
+    region: oregon
+    plan: starter
+    numInstances: 1
+    maxShutdownDelaySeconds: 30
+    preDeployCommand: node build/worker/scripts/migrate.js
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: TEMPORAL_API_KEY
+        sync: false
+      - key: TEMPORAL_ADDRESS
+        value: quickstart-doctone-sda.rozg0.tmprl.cloud:7233
+      - key: TEMPORAL_NAMESPACE
+        value: quickstart-doctone-sda.rozg0
+      - key: TEMPORAL_TASK_QUEUE
+        value: hn-ingestion-production

@@ -1,12 +1,13 @@
 import { Client, Connection, WorkflowExecutionAlreadyStartedError } from "@temporalio/client";
 import { readEnv } from "../lib/env";
+import { temporalConnectionOptions } from "./connection";
 import { workflowIdForThread, type IngestHiringThreadInput } from "./shared";
 
 const globalForTemporal = globalThis as unknown as { temporalClient?: Promise<Client> };
 
 async function createClient(): Promise<Client> {
   const env = readEnv();
-  const connection = await Connection.connect({ address: env.TEMPORAL_ADDRESS });
+  const connection = await Connection.connect(temporalConnectionOptions(env));
   return new Client({ connection, namespace: env.TEMPORAL_NAMESPACE });
 }
 
@@ -20,6 +21,9 @@ export function getTemporalClient(): Promise<Client> {
 export type StartIngestionResult = { started: true; workflowId: string; runId: string } | { started: false; reason: "already-running"; workflowId: string };
 
 export async function startIngestion(threadId: number): Promise<StartIngestionResult> {
+  if (process.env.VERCEL_ENV === "preview") {
+    throw new Error("Ingestion is disabled in preview deployments.");
+  }
   const client = await getTemporalClient();
   const workflowId = workflowIdForThread(threadId);
   const input: IngestHiringThreadInput = { threadId };

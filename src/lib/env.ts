@@ -5,6 +5,8 @@ const envSchema = z.object({
   TEMPORAL_ADDRESS: z.string().default("localhost:7233"),
   TEMPORAL_NAMESPACE: z.string().default("default"),
   TEMPORAL_TASK_QUEUE: z.string().default("hn-ingestion"),
+  TEMPORAL_API_KEY: z.string().min(1).optional(),
+  TEMPORAL_WORKFLOW_BUNDLE: z.string().min(1).optional(),
   HN_API_URL: z.string().url().default("https://hacker-news.firebaseio.com/v0"),
 });
 

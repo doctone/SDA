@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmit": false,
+    "incremental": false,
+    "rootDir": ".",
+    "outDir": "build/worker",
+    "plugins": []
+  },
+  "include": ["src/temporal/**/*.ts", "scripts/migrate.ts"],
+  "exclude": ["node_modules", "build"]
+}

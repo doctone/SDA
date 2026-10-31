@@ -24,6 +24,9 @@ async function waitForRunRecord(workflowId: string, runId: string): Promise<void
 export async function startRun(_previous: StartRunState, formData: FormData): Promise<StartRunState> {
   const raw = formData.get("thread");
   const input = typeof raw === "string" ? raw : "";
+  if (process.env.VERCEL_ENV === "preview") {
+    return { message: "Ingestion is disabled in preview deployments.", input };
+  }
   const parsed = parseThreadInput(input);
   if (!parsed.ok) {
     return { message: parsed.message, input };
@@ -35,7 +38,7 @@ export async function startRun(_previous: StartRunState, formData: FormData): Pr
     }
   } catch (error) {
     console.error("startIngestion failed", error);
-    return { message: "Could not start the run. Check that Temporal is up with docker compose ps.", input };
+    return { message: "Could not start the run. Please try again later.", input };
   }
   redirect(`/threads/${parsed.threadId}`);
 }

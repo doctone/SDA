@@ -1,5 +1,7 @@
 # SDA: skills demand from HN hiring threads
 
+For hosted services, see [the deployment guide](docs/deployment.md).
+
 Shows which skills employers request in a Hacker News "Who is hiring?" thread,
 with the original excerpt and HN link behind every count. Results describe
 demand within HN hiring posts only, not the wider job market.

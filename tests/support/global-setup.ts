@@ -107,6 +107,9 @@ export default async function setup(project: TestProject) {
     TEMPORAL_ADDRESS: temporal.address,
     TEMPORAL_NAMESPACE: "default",
     TEMPORAL_TASK_QUEUE: TASK_QUEUE,
+    TEMPORAL_API_KEY: undefined,
+    TEMPORAL_WORKFLOW_BUNDLE: path.join(ROOT, "build/worker/workflow-bundle.js"),
+    VERCEL_ENV: undefined,
     HN_API_URL: hn.url,
     NODE_ENV: "production",
   };
@@ -119,11 +122,12 @@ export default async function setup(project: TestProject) {
   };
 
   try {
+    await run("pnpm", ["build:worker"], appEnv);
     if (!process.env.SKIP_BUILD) {
       await run(bin("next"), ["build"], appEnv);
     }
     [worker, app] = await Promise.all([
-      startUntilReady("worker", bin("tsx"), ["src/temporal/worker.ts"], appEnv, /worker listening/),
+      startUntilReady("worker", process.execPath, ["build/worker/src/temporal/worker.js"], appEnv, /worker listening/),
       startUntilReady("next", bin("next"), ["start", "-H", "127.0.0.1", "-p", String(appPort)], appEnv, /Ready/i),
     ]);
   } catch (error) {
