@@ -97,7 +97,7 @@ one release. Every release includes all earlier commits on main.
    Confirm Render and Vercel show the merged commit and run a real ingestion.
 
 Until these steps and the first release succeed, CI/CD is prepared but not
-verified in production. The current accounts have no GitHub deployment secrets.
+verified in production.
 
 Database and Temporal credentials stay in Render and Vercel. GitHub does not
 need a separate Neon password; migrations run inside Render's pre-deploy step.
