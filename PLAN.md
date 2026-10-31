@@ -23,10 +23,13 @@ posts only.
      processes comment IDs in batches of 25, one activity per batch.
    - Activities upsert by HN item ID and replace skill mentions per comment
      and extraction version inside one transaction.
-4. UI design with Mobbin. Next.
+4. UI design with Mobbin. Done.
    - Two screens: thread entry with run status, and thread results with skill
      counts, percentages of eligible postings, and source excerpts.
-   - Agree a direction from Mobbin references before writing UI code.
-5. UI build in Tailwind, then verification.
-   - Real data in the browser, visible empty and failed states, and a manual
-     sample check of eligibility and skill counts.
+   - Direction: Firecrawl's input with a recent-runs list, Pipedrive's
+     in-progress banner, Etsy's ranked table with bars, and Dovetail's
+     highlighted excerpt cards.
+5. UI build in Tailwind, then verification. In progress.
+   - Done: real data in the browser, with running, failed, empty and
+     not-analysed states checked by hand.
+   - Next: a manual sample check of eligibility and skill counts.

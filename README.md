@@ -27,8 +27,15 @@ docker compose exec worker pnpm exec tsx scripts/start-ingestion.ts 49922569
 | Postgres | `postgres://skills:skills@localhost:5433/skills` |
 
 The web and worker containers mount the source, so edits reload without a
-rebuild. Rebuild after changing dependencies. `docker compose down -v` deletes
-all data, including Temporal history.
+rebuild. After changing dependencies, rebuild with fresh `node_modules`
+volumes:
+
+```sh
+docker compose up -d --build -V web worker
+```
+
+Without `-V`, the containers keep their old `node_modules`. `docker compose
+down -v` deletes all data, including Temporal history.
 
 ## Services
 
