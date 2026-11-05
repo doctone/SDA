@@ -5,18 +5,11 @@ import { AutoRefresh } from "@/components/auto-refresh";
 import { RunStatusBadge } from "@/components/run-status-badge";
 import { formatUtc } from "@/lib/format";
 import { listRecentRuns, type RunSummary } from "@/lib/thread-data";
-import { StartRunForm } from "./start-run-form";
 
 export default function Home() {
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">Skills demand from HN hiring threads</h1>
-      <p className="mt-2 text-zinc-600">
-        Paste a &ldquo;Who is hiring?&rdquo; thread to count which skills employers ask for in it.
-      </p>
-      <div className="mt-8">
-        <StartRunForm />
-      </div>
       <section className="mt-12">
         <h2 className="text-sm font-medium text-zinc-900">Recent runs</h2>
         <Suspense fallback={<p className="mt-4 text-sm text-zinc-500">Loading runs…</p>}>
